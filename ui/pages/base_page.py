@@ -1,7 +1,8 @@
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
-from ui.config.config import Config
+from ui.config import Config
 
 
 class BasePage:
@@ -18,3 +19,10 @@ class BasePage:
             expected_conditions.presence_of_all_elements_located(locator)
         )
         elements[number_of_element].click()
+
+    @classmethod
+    def click_button_or_press_enter_on_input(cls, input, button, enter: bool = False):
+        if enter:
+            input.send_keys(Keys.RETURN)
+        else:
+            button.click()

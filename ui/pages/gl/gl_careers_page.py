@@ -1,17 +1,15 @@
 from urllib.parse import urljoin
 
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
-from ui.config.config import Config
-from ui.config.endpoints import Endpoints
+from ui.config import Config, GlobalLogicEndpoints
 from ui.pages.base_page import BasePage
-from ui.pages.gl.gl_careers_result_page import GLCareersResultPage
+from ui.pages.gl import GLCareersResultPage
 
 
 class GLCareersPage(BasePage):
-    URL = urljoin(Config.GLOBAL_LOGIC_BASE_URL, Endpoints.GLOBAL_LOGIC_CAREERS_URL)
+    URL = urljoin(Config.GLOBAL_LOGIC_BASE_URL, GlobalLogicEndpoints.GLOBAL_LOGIC_CAREERS_URL)
 
     SEARCH_FIELD = (By.ID, 'by_keyword')
     SEARCH_BUTTON = (By.XPATH, '//*[@id="hero"]/div/div/div/div/div/div/div/form/div/button')
@@ -41,15 +39,22 @@ class GLCareersPage(BasePage):
     def search_button(self):
         return self.browser.find_element(*GLCareersPage.SEARCH_BUTTON)
 
-    def search_vacancy(self, vacancy, enter=False):
-        self.wait_for_presence_of_all_elements_located(GLCareersPage.SEARCH_FIELD)
+    def search_vacancy(self, vacancy: str, enter: bool = False) -> GLCareersResultPage:
+        self.wait_for_presence_of_all_elements_located(
+            GLCareersPage.SEARCH_FIELD, timeout=Config.DEFAULT_TIMEOUT / 2
+        )
         self.search_field.send_keys(vacancy)
-        self.wait_for_presence_of_all_elements_located(GLCareersPage.SEARCH_BUTTON)
-        if enter:
-            self.search_field.send_keys(Keys.RETURN)
-        else:
-            self.search_button.click()
+        self.wait_for_presence_of_all_elements_located(
+            GLCareersPage.SEARCH_BUTTON, timeout=Config.DEFAULT_TIMEOUT / 2
+        )
+
+        self.click_button_or_press_enter_on_input(
+            input=self.search_field,
+            button=self.search_button,
+            enter=enter,
+        )
+
         return GLCareersResultPage(self.browser, by_keyword=vacancy)
 
-    def check_field_exists(self):
+    def check_field_exists(self) -> bool:
         return self.search_field is not None and self.search_field.tag_name == 'input'

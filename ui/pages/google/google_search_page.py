@@ -1,19 +1,20 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-from ui.config.config import Config
+from ui.config import Config
 from ui.pages.base_page import BasePage
-from ui.pages.google.google_results_page import GoogleResultsPage
+from ui.pages.google import GoogleResultsPage
 
 
 class GoogleSearchPage(BasePage):
     URL = Config.GOOGLE_BASE_URL
 
     SEARCH_FIELD = (By.NAME, 'q')
-    SEARCH_BUTTON = (By.XPATH, '//div[1]/div[3]/form/div[1]/div[1]/div[3]/center/input[1]')
+    SEARCH_BUTTON = (By.XPATH, '/html/body/div[1]/div[3]/form/div[1]/div[1]/div[4]/center/input[1]')
 
     def __init__(self, browser):
         super().__init__(browser)
+        self.open()
 
     def open(self):
         self.browser.get(GoogleSearchPage.URL)
@@ -29,9 +30,10 @@ class GoogleSearchPage(BasePage):
     def search_button(self):
         return self.browser.find_element(*GoogleSearchPage.SEARCH_BUTTON)
 
-    def search_by_phrase(self, phrase, enter=False):
+    def search_by_phrase(self, phrase: str, enter: bool = False) -> GoogleResultsPage:
         self.search_field.send_keys(phrase)
         self.browser.implicitly_wait(Config.DEFAULT_TIMEOUT)
+
         if enter:
             self.search_field.send_keys(Keys.RETURN)
         else:

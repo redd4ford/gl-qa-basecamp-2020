@@ -1,13 +1,12 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 
-from ui.config.config import Config
+from ui.config import Config
 from ui.pages.base_page import BasePage
-from ui.pages.pypi.pypi_results_page import PyPIResultsPage
+from ui.pages.pypi import PyPIResultsPage
 
 
 class PyPIHomePage(BasePage):
-    URL = Config.PYPI_URL
+    URL = Config.PYPI_BASE_URL
 
     SEARCH_FIELD = (By.ID, 'search')
     SEARCH_BUTTON = (By.CLASS_NAME, 'search-form__button')
@@ -30,12 +29,14 @@ class PyPIHomePage(BasePage):
     def search_button(self):
         return self.browser.find_element(*PyPIHomePage.SEARCH_BUTTON)
 
-    def search_project(self, phrase, enter=False):
+    def search_project(self, phrase: str, enter: bool = False) -> PyPIResultsPage:
         self.search_field.send_keys(phrase)
         self.browser.implicitly_wait(Config.DEFAULT_TIMEOUT)
-        if enter:
-            self.search_field.send_keys(Keys.RETURN)
-        else:
-            self.search_button.click()
+
+        self.click_button_or_press_enter_on_input(
+            input=self.search_field,
+            button=self.search_button,
+            enter=enter,
+        )
 
         return PyPIResultsPage(self.browser)
